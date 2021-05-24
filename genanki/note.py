@@ -49,11 +49,12 @@ class _TagList(list):
 class Note:
   _INVALID_HTML_TAG_RE = re.compile(r'<(?!/?[a-z0-9]+(?: .*|/?)>)(?:.|\n)*?>')
 
-  def __init__(self, model=None, fields=None, sort_field=None, tags=None, guid=None):
+  def __init__(self, model=None, fields=None, sort_field=None, tags=None, guid=None, due=0):
     self.model = model
     self.fields = fields
     self.sort_field = sort_field
     self.tags = tags or []
+    self.due = due
     try:
       self.guid = guid
     except AttributeError:
@@ -101,7 +102,7 @@ class Note:
       card_ords.update(int(m)-1 for m in re.findall(r"{{c(\d+)::.+?}}", field_value, re.DOTALL) if int(m) > 0)
     if card_ords == {}:
       card_ords = {0}
-    return([Card(ord) for ord in card_ords])
+    return([Card(ord, due=self.due) for ord in card_ords])
 
   def _front_back_cards(self):
     """Create Front/Back cards"""
@@ -109,7 +110,7 @@ class Note:
     for card_ord, any_or_all, required_field_ords in self.model._req:
       op = {'any': any, 'all': all}[any_or_all]
       if op(self.fields[ord_] for ord_ in required_field_ords):
-        rv.append(Card(card_ord))
+        rv.append(Card(card_ord, due=self.due))
     return rv
 
   @property

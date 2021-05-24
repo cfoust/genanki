@@ -1,7 +1,8 @@
 class Card:
-  def __init__(self, ord, suspend=False):
+  def __init__(self, ord, suspend=False, due=0):
     self.ord = ord
     self.suspend = suspend
+    self.due = due
 
   def write_to_db(self, cursor, timestamp: float, deck_id, note_id, id_gen):
     queue = -1 if self.suspend else 0
@@ -14,7 +15,7 @@ class Card:
         -1,              # usn
         0,               # type (=0 for non-Cloze)
         queue,           # queue
-        0,               # due
+        self.due,        # due
         0,               # ivl
         0,               # factor
         0,               # reps
